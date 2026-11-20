@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>⚡ ЭнергоСоветник — умный калькулятор электричества</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #fbbf24, #38bdf8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: #94a3b8;
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+
+        /* Grid layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 24px;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 28px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #e2e8f0;
+            border-left: 4px solid #fbbf24;
+            padding-left: 16px;
+        }
+
+        /* Form elements */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            color: white;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        select:focus, input:focus {
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+        }
+
+        button {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #0f172a;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            margin-top: 8px;
+        }
+
+        /* Stats */
+        .total-box {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+
+        .total-price {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #fbbf24;
+        }
+
+        .total-kwh {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        .tariff-badge {
+            display: inline-block;
+            background: #334155;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            margin-top: 12px;
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 320px;
+            overflow-y: auto;
+            border-radius: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        th {
+            background: #0f172a;
+            color: #fbbf24;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            color: #cbd5e1;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            width: auto;
+            margin: 0;
+        }
+
+        /* Advice */
+        .advice-box {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #10b981;
+        }
+
+        .advice-text {
+            line-height: 1.6;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        /* Chart */
+        .chart-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        canvas {
+            max-height: 280px;
+            width: 100% !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .badge {
+            background: #fbbf2415;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            display: inline-block;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>⚡ ЭНЕРГОСОВЕТНИК</h1>
+        <p>Калькулятор потребления + персональные советы по экономии</p>
+    </div>
+
+    <div class="dashboard">
+        <!-- Левая панель: добавление и итоги -->
+        <div class="card">
+            <div class="card-title">📋 ДОБАВИТЬ ПРИБОР</div>
+            <div class="form-group">
+                <label>🔌 Тип прибора</label>
+                <select id="deviceSelect">
+                    <option value="Холодильник|150|24">❄️ Холодильник (150 Вт, 24ч)</option>
+                    <option value="Стиральная машина|2000|1">🧺 Стиральная машина (2000 Вт, 1ч)</option>
+                    <option value="Электрочайник|2200|0.3">☕ Электрочайник (2200 Вт, 0.3ч)</option>
+                    <option value="Ноутбук|65|5">💻 Ноутбук (65 Вт, 5ч)</option>
+                    <option value="Телевизор|100|4">📺 Телевизор (100 Вт, 4ч)</option>
+                    <option value="Пылесос|1600|0.3">🧹 Пылесос (1600 Вт, 0.3ч)</option>
+                    <option value="Обогреватель|2000|3">🔥 Обогреватель (2000 Вт, 3ч)</option>
+                    <option value="Кондиционер|1200|4">🌬️ Кондиционер (1200 Вт, 4ч)</option>
+                    <option value="LED лампа|10|6">💡 LED лампа (10 Вт, 6ч)</option>
+                    <option value="Посудомойка|1500|1.5">🍽️ Посудомойка (1500 Вт, 1.5ч)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>⚡ Мощность (Вт)</label>
+                <input type="number" id="powerInput" value="150" step="10">
+            </div>
+            <div class="form-group">
+                <label>⏱️ Часов в день</label>
+                <input type="number" id="hoursInput" value="1" step="0.5">
+            </div>
+            <button id="addBtn">➕ ДОБАВИТЬ ПРИБОР</button>
+
+            <div class="total-box" style="margin-top: 24px;">
+                <div style="font-size: 0.8rem; color: #94a3b8;">ЗАТРАТЫ ЗА МЕСЯЦ</div>
+                <div class="total-price" id="totalCostDisplay">0 ₽</div>
+                <div class="total-kwh" id="totalKwhDisplay">0 кВт·ч</div>
+                <div class="tariff-badge">💰 Тариф: 5.5 ₽/кВт·ч</div>
+            </div>
+            <button id="resetBtn" class="btn-danger">🗑️ СБРОСИТЬ ВСЁ</button>
+        </div>
+
+        <!-- Правая панель: список, график, советы -->
+        <div>
+            <div class="card">
+                <div class="card-title">📊 АКТИВНЫЕ ПРИБОРЫ</div>
+                <div class="table-wrapper">
+                    <table id="devicesTable">
+                        <thead>
+                            <tr><th>Прибор</th><th>Вт</th><th>ч/день</th><th>кВт·ч/мес</th><th>₽/мес</th><th></th></tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr><td colspan="6" class="empty-message">Нет приборов. Добавьте первый!</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="chart-container">
+                    <canvas id="costChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <div class="card-title">💡 ПЕРСОНАЛЬНЫЕ РЕКОМЕНДАЦИИ</div>
+                <div class="advice-box" id="adviceBox">
+                    <div class="advice-text">✨ Добавьте приборы — я дам умные советы по экономии! ✨</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // База советов для каждого прибора
+    const tipsDB = {
+        "Холодильник": "❄️ Не ставьте рядом с плитой/батареей. Размораживайте вовремя — экономия до 25%.",
+        "Стиральная машина": "🧺 Стирайте при 30-40°C, полная загрузка — экономия до 40%.",
+        "Электрочайник": "☕ Кипятите ровно столько воды, сколько нужно — до 50% экономии.",
+        "Ноутбук": "💻 Отключайте зарядку после зарядки, включите режим энергосбережения.",
+        "Телевизор": "📺 Не оставляйте в режиме ожидания (жрёт до 10 Вт постоянно). Уменьшите яркость.",
+        "Пылесос": "🧹 Чистите фильтры — падение мощности увеличивает расход.",
+        "Обогреватель": "🔥 Утеплите окна и двери, используйте таймер.",
+        "Кондиционер": "🌬️ Чистите фильтры каждый месяц, закрывайте окна.",
+        "LED лампа": "💡 Самый экономный свет. Используйте датчики движения.",
+        "Посудомойка": "🍽️ Запускайте только полную загрузку, ECO-режим."
+    };
+
+    let devices = []; // { name, power, hours, kwhPerMonth, costPerMonth }
+    const TARIFF = 5.5; // рублей за кВт·ч
+
+    let chart = null;
+
+    // DOM элементы
+    const deviceSelect = document.getElementById('deviceSelect');
+    const powerInput = document.getElementById('powerInput');
+    const hoursInput = document.getElementById('hoursInput');
+    const addBtn = document.getElementById('addBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const tableBody = document.getElementById('tableBody');
+    const totalCostDisplay = document.getElementById('totalCostDisplay');
+    const totalKwhDisplay = document.getElementById('totalKwhDisplay');
+    const adviceBox = document.getElementById('adviceBox');
+
+    // Функция обновления данных при выборе прибора
+    deviceSelect.addEventListener('change', () => {
+        const selected = deviceSelect.value;
+        const parts = selected.split('|');
+        if(parts.length === 3) {
+            powerInput.value = parseInt(parts[1]);
+            hoursInput.value = parseFloat(parts[2]);
+        }
+    });
+
+    // Рассчитать для одного прибора
+    function calculateDevice(power, hoursPerDay) {
+        const kwhPerDay = (power * hoursPerDay) / 1000;
+        const kwhPerMonth = kwhPerDay * 30;
+        const costPerMonth = kwhPerMonth * TARIFF;
+        return { kwhPerMonth, costPerMonth };
+    }
+
+    // Добавить прибор
+    function addDevice() {
+        const selectedOption = deviceSelect.options[deviceSelect.selectedIndex];
+        let name = selectedOption.text.split('(')[0].trim();
+        // убираем эмодзи и лишнее, оставляем чистое имя
+        name = name.replace(/[^a-zA-Zа-яА-ЯёЁ\s]/g, '').trim();
+        
+        let power = parseFloat(powerInput.value);
+        let hours = parseFloat(hoursInput.value);
+        
+        if(isNaN(power) || power <= 0) { alert("Мощность должна быть > 0"); return; }
+        if(isNaN(hours) || hours <= 0) { alert("Часы должны быть > 0"); return; }
+        
+        const { kwhPerMonth, costPerMonth } = calculateDevice(power, hours);
+        
+        devices.push({
+            id: Date.now() + Math.random(),
+            name: name,
+            power: power,
+            hours: hours,
+            kwh: kwhPerMonth,
+            cost: costPerMonth
+        });
+        
+        renderTable();
+        updateTotals();
+        updateAdvice();
+        updateChart();
+    }
+
+    // Удалить прибор
+    function deleteDevice(id) {
+        devices = devices.filter(d => d.id !== id);
+        renderTable();
+        updateTotals();
+        updateAdvice();
+        updateChart();
+    }
+
+    // Рендер таблицы
+    function renderTable() {
+        if(devices.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" class="empty-message">✨ Нет приборов. Добавьте первый!</td></tr>';
+            return;
+        }
+        
+        let html = '';
+        devices.forEach(dev => {
+            html += `
+                <tr>
+                    <td>${dev.name}</td>
+                    <td>${dev.power}</td>
+                    <td>${dev.hours.toFixed(1)}</td>
+                    <td>${dev.kwh.toFixed(1)}</td>
+                    <td><strong style="color:#fbbf24">${dev.cost.toFixed(2)} ₽</strong></td>
+                    <td><button class="delete-btn" onclick="deleteDevice(${dev.id})">🗑️</button></td>
+                </tr>
+            `;
+        });
+        tableBody.innerHTML = html;
+    }
+
+    // Обновить итоги
+    function updateTotals() {
+        const totalKwh = devices.reduce((sum, d) => sum + d.kwh, 0);
+        const totalCost = devices.reduce((sum, d) => sum + d.cost, 0);
+        totalKwhDisplay.innerText = totalKwh.toFixed(1) + " кВт·ч";
+        totalCostDisplay.innerText = totalCost.toFixed(2) + " ₽";
+    }
+
+    // Персональные рекомендации (умные)
+    function updateAdvice() {
+        if(devices.length === 0) {
+            adviceBox.innerHTML = '<div class="advice-text">🌟 Добавьте приборы — я дам персонализированные советы по экономии! 🌟</div>';
+            return;
+        }
+        
+        // Найти самый затратный прибор
+        let topDevice = devices.reduce((max, d) => d.cost > max.cost ? d : max, devices[0]);
+        let tipForTop = tipsDB[topDevice.name] || "🔌 Отключайте прибор из розетки, когда не используете — экономия до 10%.";
+        
+        let totalCost = devices.reduce((s,d) => s + d.cost, 0);
+        let totalKwh = devices.reduce((s,d) => s + d.kwh, 0);
+        
+        let adviceHtml = `<div class="advice-text">🔴 <strong>САМЫЙ ЗАТРАТНЫЙ:</strong> ${topDevice.name} — ${topDevice.cost.toFixed(2)} ₽/мес.<br>💡 ${tipForTop}<br><br>`;
+        
+        // Общие рекомендации на основе суммы
+        if(totalCost > 1500) {
+            adviceHtml += `⚠️ <strong>Высокий счёт (>1500₽)</strong><br>• Перейдите на двухтарифный счётчик (ночь/день).<br>• Используйте Wi-Fi розетки с таймером.<br>• Проверьте утеплитель холодильника.<br><br>`;
+        } else if(totalCost > 500) {
+            adviceHtml += `📉 <strong>Среднее потребление</strong><br>• Выключайте технику кнопкой, а не пультом.<br>• Замените старые лампы на LED — окупается за 2 месяца.<br>• Стирайте при 30°C.<br><br>`;
+        } else {
+            adviceHtml += `🏆 <strong>Вы супер-экономный пользователь!</strong> Поделитесь советами с друзьями.<br>• Выключайте свет, выходя из комнаты.<br>• Ноутбук в спящем режиме потребляет 2-5 Вт — отключайте.<br><br>`;
+        }
+        
+        // Найти прибор, который работает много часов
+        let longDevice = devices.reduce((max, d) => d.hours > max.hours ? d : max, devices[0]);
+        if(longDevice.hours > 8 && longDevice.power > 100) {
+            let potentialSave = (longDevice.cost * 0.15).toFixed(2);
+            adviceHtml += `⏰ ${longDevice.name} работает ${longDevice.hours.toFixed(1)} ч/день. Сократите на 1-2 часа → экономия ~${potentialSave} ₽/мес.<br>`;
+        }
+        
+        // Эко-совет от общего кВт·ч
+        if(totalKwh > 250) {
+            adviceHtml += `🌍 Экологично: переведите все приборы в режим энергосбережения и отключайте на ночь.</div>`;
+        } else {
+            adviceHtml += `✨ Отличная работа! Ваш углеродный след минимален.</div>`;
+        }
+        
+        adviceBox.innerHTML = adviceHtml;
+    }
+
+    // График (Chart.js)
+    function updateChart() {
+        const ctx = document.getElementById('costChart').getContext('2d');
+        if(chart) chart.destroy();
+        
+        if(devices.length === 0) {
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Нет данных'],
+                    datasets: [{ label: 'Рубли/мес', data: [0], backgroundColor: '#475569' }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#cbd5e1' } } } }
+            });
+            return;
+        }
+        
+        const labels = devices.map(d => d.name.length > 12 ? d.name.slice(0,10)+'…' : d.name);
+        const costs = devices.map(d => d.cost);
+        
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Затраты в месяц (₽)',
+                    data: costs,
+                    backgroundColor: '#fbbf24',
+                    borderRadius: 10,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { labels: { color: '#e2e8f0', font: { size: 11 } } },
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(2)} ₽` } }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#334155' }, ticks: { color: '#cbd5e1' } },
+                    x: { ticks: { color: '#cbd5e1', font: { size: 10 } }, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // Сброс
+    function resetAll() {
+        devices = [];
+        renderTable();
+        updateTotals();
+        updateAdvice();
+        updateChart();
+        // сбросить значения на дефолт
+        deviceSelect.value = "Холодильник|150|24";
+        powerInput.value = 150;
+        hoursInput.value = 1;
+    }
+
+    // События
+    addBtn.addEventListener('click', addDevice);
+    resetBtn.addEventListener('click', resetAll);
+    
+    // начальная инициализация
+    renderTable();
+    updateTotals();
+    updateAdvice();
+    updateChart();
+</script>
+</body>
+</html>

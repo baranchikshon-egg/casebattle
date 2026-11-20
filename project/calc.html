@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор потребления электроэнергии</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Калькулятор потребления электроэнергии</h1>
+        
+        <div class="form-group">
+            <label for="power">Мощность прибора (Вт):</label>
+            <input type="number" id="power" placeholder="Например: 1000" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="hours">Время работы в день (часы):</label>
+            <input type="number" id="hours" placeholder="Например: 3" step="0.1" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="days">Количество дней использования:</label>
+            <input type="number" id="days" placeholder="Например: 30" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="tariff">Тариф за 1 кВт·ч (руб):</label>
+            <input type="number" id="tariff" placeholder="Например: 5.50" step="0.01" required>
+        </div>
+        
+        <button onclick="calculateEnergy()">Рассчитать</button>
+        
+        <div id="results">
+            <h3>Результаты расчёта:</h3>
+            <p><strong>Потребление энергии:</strong> <span id="energy">0</span> кВт·ч</p>
+            <p><strong>Стоимость электроэнергии:</strong> <span id="cost">0</span> руб.</p>
+        </div>
+    </div>
+
+    <script>
+        function calculateEnergy() {
+            // Получаем значения из полей ввода
+            const power = parseFloat(document.getElementById('power').value);
+            const hours = parseFloat(document.getElementById('hours').value);
+            const days = parseFloat(document.getElementById('days').value);
+            const tariff = parseFloat(document.getElementById('tariff').value);
+            
+            // Проверяем, что все поля заполнены
+            if (isNaN(power) || isNaN(hours) || isNaN(days) || isNaN(tariff)) {
+                alert('Пожалуйста, заполните все поля корректными значениями');
+                return;
+            }
+            
+            // Расчёт потребления энергии в кВт·ч
+            // Формула: (мощность в Вт × часы × дни) / 1000
+            const energy = (power * hours * days) / 1000;
+            
+            // Расчёт стоимости
+            const cost = energy * tariff;
+            
+            // Выводим результаты
+            document.getElementById('energy').textContent = energy.toFixed(2);
+            document.getElementById('cost').textContent = cost.toFixed(2);
+            
+            // Показываем блок с результатами
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
